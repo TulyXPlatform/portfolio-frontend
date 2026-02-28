@@ -235,7 +235,8 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                 setData(res.data);
                 onSocialLinks(res.data.socialLinks || []);
             })
-            .catch(() => {
+            .catch(err => {
+                console.error('[portfolio] failed to load /api/portfolio', err);
                 setData(MOCK_DATA);
                 onSocialLinks(MOCK_DATA.socialLinks);
             });
