@@ -231,13 +231,15 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get(`${API_BASE}/portfolio`)
+        const url = `${API_BASE}/portfolio`;
+        console.log('[portfolio] fetching', url);
+        axios.get(url)
             .then(res => {
                 setData(res.data);
                 onSocialLinks(res.data.socialLinks || []);
             })
             .catch(err => {
-                console.error('[portfolio] failed to load /api/portfolio', err);
+                console.error('[portfolio] failed to load', url, err);
                 setFetchError(err.response?.data?.error || err.message);
                 setData(MOCK_DATA);
                 onSocialLinks(MOCK_DATA.socialLinks);
