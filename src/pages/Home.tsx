@@ -29,6 +29,7 @@ interface PortfolioData {
 interface HomeProps { onSocialLinks: (links: SocialLink[]) => void; }
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
+console.log('[portfolio] computed API_BASE', API_BASE);
 const MOCK_DATA: PortfolioData = {
     socialLinks: [
         { id: 1, platform: 'github', url: 'https://github.com/' },
@@ -282,7 +283,8 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
             {showMockBanner && (
               <div style={{ background: '#ffdddd', color: '#900', padding: '0.75rem', textAlign: 'center' }}>
                 <strong>Warning:</strong> could not fetch portfolio data from API ({fetchError}).
-                This site is displaying fallback content. Check the VITE_API_URL and CORS settings.
+                <br />API_BASE used: <code>{API_BASE}</code>
+                <br />This site is displaying fallback content. Check the VITE_API_URL and CORS settings.
               </div>
             )}
 
