@@ -219,6 +219,7 @@ const buildCliResponse = (cmd: string, data: PortfolioData): CliLine[] => {
 // ─── HOME COMPONENT ───────────────────────────────────────
 const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
     const [data, setData] = useState<PortfolioData | null>(null);
+    const [fetchError, setFetchError] = useState<string | null>(null);
     const [cliLines, setCliLines] = useState<CliLine[]>([
         { text: '  Welcome to Tamima\'s Portfolio CLI', type: 'inf' },
         { text: '  Type "help" to see available commands.', type: 'dim' },
