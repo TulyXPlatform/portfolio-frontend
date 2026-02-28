@@ -6,6 +6,10 @@ const ContactSection: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) {
+  console.error('VITE_API_URL not defined in portfolio contact form');
+}
+console.log('[portfolio] contact API_URL', API_URL);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
