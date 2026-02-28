@@ -237,6 +237,7 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
             })
             .catch(err => {
                 console.error('[portfolio] failed to load /api/portfolio', err);
+                setFetchError(err.response?.data?.error || err.message);
                 setData(MOCK_DATA);
                 onSocialLinks(MOCK_DATA.socialLinks);
             });
@@ -268,8 +269,20 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
         return <LoadingScreen />;
     }
 
+    // show banner if data is mocked (fetch error or fallback)
+    const showMockBanner = fetchError !== null;
+
+
     return (
         <>
+            {/* show warning if API failed and we are using mock data */}
+            {showMockBanner && (
+              <div style={{ background: '#ffdddd', color: '#900', padding: '0.75rem', textAlign: 'center' }}>
+                <strong>Warning:</strong> could not fetch portfolio data from API ({fetchError}).
+                This site is displaying fallback content. Check the VITE_API_URL and CORS settings.
+              </div>
+            )}
+
             {/* ══════════════════════════════════
                 HERO SECTION
                 ══════════════════════════════════ */}

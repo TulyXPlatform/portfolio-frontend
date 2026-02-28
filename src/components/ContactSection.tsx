@@ -4,6 +4,7 @@ import axios from 'axios';
 const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
 if (!API_URL) {
@@ -19,8 +20,10 @@ console.log('[portfolio] contact API_URL', API_URL);
       await axios.post(`${API_URL}/api/messages`, formData);
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
-    } catch (err) {
-      console.error(err);
+      setErrorMsg(null);
+    } catch (err: any) {
+      console.error('[portfolio] message send failed', err);
+      setErrorMsg(err.response?.data?.error || err.message);
       setStatus('error');
     }
   };
@@ -74,7 +77,11 @@ console.log('[portfolio] contact API_URL', API_URL);
         </button>
 
         {status === 'success' && <p style={{ color: 'var(--primary)', textAlign: 'center' }}>Message sent successfully!</p>}
-        {status === 'error' && <p style={{ color: '#ff5f57', textAlign: 'center' }}>Failed to send message. Try again.</p>}
+        {status === 'error' && (
+          <p style={{ color: '#ff5f57', textAlign: 'center' }}>
+            Failed to send message. {errorMsg && `(Error: ${errorMsg})`} Try again.
+          </p>
+        )}
       </form>
     </section>
   );
