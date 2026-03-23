@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaCalendarAlt, FaArrowRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
 interface Post { id: number; title: string; summary: string; coverImage: string; createdAt: string; }
@@ -19,8 +19,21 @@ const Blog: React.FC = () => {
             ]));
     }, []);
 
+    const handleBackToPortfolio = () => {
+        navigate('/#blog-section');
+    };
+
     return (
         <div style={{ paddingTop: '4rem' }}>
+            {/* Back button */}
+            <button
+                onClick={handleBackToPortfolio}
+                className="btn-ghost"
+                style={{ marginBottom: '2rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+                <FaArrowLeft /> Back to Portfolio
+            </button>
+
             <div className="section-header">
                 <span className="section-tag">Writing</span>
                 <h1 className="section-title">Blog Posts</h1>

@@ -45,9 +45,9 @@ const FloatingNavbar: React.FC<Props> = ({ socialLinks }) => {
           <>
             <div className="navbar-divider" />
             <div className="navbar-links">
-              {socialLinks.slice(0, 5).map((s) => (
+              {socialLinks.slice(0, 5).map((s, idx) => (
                 <a
-                  key={s.id}
+                  key={s.id || `${s.platform}-${idx}`}
                   href={s.url}
                   target="_blank"
                   rel="noreferrer"

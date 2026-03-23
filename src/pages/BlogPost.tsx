@@ -5,7 +5,7 @@ import { FaArrowLeft, FaCalendarAlt } from 'react-icons/fa';
 import LoadingScreen from '../components/LoadingScreen';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
-interface Post { id: number; title: string; summary: string; content: string; coverImage: string; createdAt: string; }
+interface Post { id: string | number; title: string; summary: string; content: string; coverImage: string; createdAt: string; }
 
 const BlogPost: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -17,7 +17,7 @@ const BlogPost: React.FC = () => {
         axios.get(`${API_BASE}/posts/${id}`)
             .then(res => setPost(res.data))
             .catch(() => setPost({
-                id: Number(id), title: 'Post not found', summary: '', content: 'The post could not be loaded.',
+                id: id || '', title: 'Post not found', summary: '', content: 'The post could not be loaded.',
                 coverImage: '', createdAt: new Date().toISOString(),
             }))
             .finally(() => setLoading(false));
@@ -27,10 +27,14 @@ const BlogPost: React.FC = () => {
 
     if (!post) return null;
 
+    const handleBackToBlog = () => {
+        navigate('/#blog-section');
+    };
+
     return (
         <div style={{ paddingTop: '2rem' }}>
-            <button onClick={() => navigate(-1)} className="btn-ghost" style={{ marginBottom: '2rem' }}>
-                <FaArrowLeft /> Back to Blog
+            <button onClick={handleBackToBlog} className="btn-ghost" style={{ marginBottom: '2rem' }}>
+                <FaArrowLeft /> Back to Portfolio
             </button>
 
             {/* Cover image */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ContactSection from '../components/ContactSection';
 import {
     FaGithub, FaLinkedin, FaFacebook, FaWhatsapp,
@@ -11,11 +11,11 @@ import {
 import LoadingScreen from '../components/LoadingScreen';
 
 // ─── Types ────────────────────────────────────────────────
-interface SocialLink { id: number; platform: string; url: string; }
-interface Skill { id: number; name: string; logo: string; category: string; }
-interface Project { id: number; title: string; shortDescription: string; image: string; liveLink: string; githubLink: string; tags: string; }
-interface BlogPost { id: number; title: string; summary: string; coverImage: string; createdAt: string; }
-interface Experience { id: number; title: string; organization: string; startDate: string; endDate: string; description: string; }
+interface SocialLink { id: string | number; platform: string; url: string; }
+interface Skill { id: string | number; name: string; logo: string; category: string; }
+interface Project { id: string | number; title: string; shortDescription: string; image: string; liveLink: string; githubLink: string; tags: string; }
+interface BlogPost { id: string | number; title: string; summary: string; coverImage: string; createdAt: string; }
+interface Experience { id: string | number; title: string; organization: string; startDate: string; endDate: string; description: string; }
 
 interface PortfolioData {
     socialLinks: SocialLink[];
@@ -54,7 +54,9 @@ const MOCK_DATA: PortfolioData = {
         { id: 12, name: 'TypeScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', category: 'programming' },
     ],
     projects: [
-        { id: 1, title: 'Portfolio Website', shortDescription: 'My personal portfolio with seasonal themes', image: '', liveLink: '#', githubLink: 'https://github.com/', tags: 'React,TypeScript,Node.js' },
+        { id: 1, title: 'Portfolio Website', shortDescription: 'Personal portfolio with seasonal themes', image: 'https://images.unsplash.com/photo-1507238692062-5a0225d3111b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', liveLink: '#', githubLink: 'https://github.com/TulyXPlatform/', tags: 'React,TypeScript,Node.js' },
+        { id: 2, title: 'E-Commerce Platform', shortDescription: 'Modern shopping experience with cart and checkout', image: 'https://images.unsplash.com/photo-1557821552-17105176677c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', liveLink: '#', githubLink: 'https://github.com/TulyXPlatform/ecommerce', tags: 'ASP.NET Core,Angular,MS SQL' },
+        { id: 3, title: 'Task Management App', shortDescription: 'Cross-platform task tracker for productivity', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', liveLink: '#', githubLink: 'https://github.com/TulyXPlatform/task-manager', tags: 'MAUI,C#,Firebase' },
     ],
     posts: [
         { id: 1, title: 'Getting Started with ASP.NET Core', summary: 'A beginner guide to building Web APIs', coverImage: '', createdAt: new Date().toISOString() },
@@ -226,10 +228,20 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
         { text: '  Type "help" to see available commands.', type: 'dim' },
     ]);
     const [cliInput, setCLIInput] = useState('');
-    const [expandedExp, setExpandedExp] = useState<Record<number, boolean>>({});
+    const [expandedExp, setExpandedExp] = useState<Record<string | number, boolean>>({});
+    const [hoveredProj, setHoveredProj] = useState<string | number | null>(null);
     const cliBodyRef = useRef<HTMLDivElement>(null);
     const cliInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Auto scroll when data is available and format contains a hash
+    useEffect(() => {
+        if (data && location.hash) {
+            const id = location.hash.replace('#', '');
+            setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 300);
+        }
+    }, [data, location.hash]);
 
     useEffect(() => {
         const url = `${API_BASE}/portfolio`;
@@ -281,11 +293,11 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
         <>
             {/* show warning if API failed and we are using mock data */}
             {showMockBanner && (
-              <div style={{ background: '#ffdddd', color: '#900', padding: '0.75rem', textAlign: 'center' }}>
-                <strong>Warning:</strong> could not fetch portfolio data from API ({fetchError}).
-                <br />API_BASE used: <code>{API_BASE}</code>
-                <br />This site is displaying fallback content. Check the VITE_API_URL and CORS settings.
-              </div>
+                <div style={{ background: '#ffdddd', color: '#900', padding: '0.75rem', textAlign: 'center' }}>
+                    <strong>Warning:</strong> could not fetch portfolio data from API ({fetchError}).
+                    <br />API_BASE used: <code>{API_BASE}</code>
+                    <br />This site is displaying fallback content. Check the VITE_API_URL and CORS settings.
+                </div>
             )}
 
             {/* ══════════════════════════════════
@@ -314,9 +326,9 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
 
                         {/* Social Links */}
                         <div className="social-grid">
-                            {data.socialLinks.map(link => (
+                            {data.socialLinks.map((link, idx) => (
                                 <a
-                                    key={link.id}
+                                    key={link.id || `${link.platform}-${idx}`}
                                     href={link.url}
                                     target="_blank"
                                     rel="noreferrer"
@@ -438,8 +450,10 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                 </div>
 
                 <div className="timeline">
-                    {data.experiences.map(exp => (
-                        <div key={exp.id} className="timeline-item glass">
+                    {data.experiences.map((exp, index) => {
+                        const uniqueId = exp.id || index;
+                        return (
+                        <div key={uniqueId} className="timeline-item glass">
                             <div className="timeline-dot" />
                             <div className="timeline-dates">
                                 <FaCalendarAlt /> {exp.startDate} → {exp.endDate}
@@ -449,20 +463,21 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                                 <FaGlobeAsia style={{ marginRight: '0.4rem', fontSize: '0.8rem' }} />
                                 {exp.organization}
                             </p>
-                            {expandedExp[exp.id] && (
+                            {expandedExp[uniqueId] && (
                                 <p className="timeline-desc">{exp.description}</p>
                             )}
                             <button
                                 className="timeline-expand-btn"
-                                onClick={() => setExpandedExp(prev => ({ ...prev, [exp.id]: !prev[exp.id] }))}
+                                onClick={() => setExpandedExp(prev => ({ ...prev, [uniqueId]: !prev[uniqueId] }))}
                             >
-                                {expandedExp[exp.id]
+                                {expandedExp[uniqueId]
                                     ? <><FaChevronUp style={{ marginRight: '0.3rem' }} />Hide Details</>
                                     : <><FaChevronDown style={{ marginRight: '0.3rem' }} />View Modules</>
                                 }
                             </button>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
 
@@ -477,21 +492,35 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                 </div>
 
                 <div className="projects-grid">
-                    {data.projects.map(proj => (
+                    {data.projects.map((proj, idx) => (
                         <div
-                            key={proj.id}
-                            className="project-card"
-                            onClick={() => navigate(`/project/${proj.id}`)}
+                            key={proj.id || idx}
+                            className={`project-card ${hoveredProj === proj.id ? 'active-preview' : ''}`}
+                            onClick={() => proj.id && navigate(`/project/${proj.id}`)}
+                            onMouseEnter={() => setHoveredProj(proj.id)}
+                            onMouseLeave={() => setHoveredProj(null)}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={e => e.key === 'Enter' && navigate(`/project/${proj.id}`)}
+                            onKeyDown={e => e.key === 'Enter' && proj.id && navigate(`/project/${proj.id}`)}
                         >
                             <div className="project-img-wrap">
-                                {proj.image
-                                    ? <img src={proj.image} alt={proj.title} className="project-img" loading="lazy" />
-                                    : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--bg2), var(--bg))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontSize: '3rem', opacity: 0.3 }}>⬡</div>
+                                {proj.liveLink && proj.liveLink !== '#'
+                                    ? <object 
+                                        data={proj.liveLink} 
+                                        style={{ 
+                                            width: '100%', 
+                                            height: '100%', 
+                                            pointerEvents: hoveredProj === proj.id ? 'all' : 'none',
+                                            transition: 'all 0.5s ease'
+                                        }} 
+                                        className="project-img" 
+                                        aria-label={proj.title} 
+                                      />
+                                    : proj.image
+                                        ? <img src={proj.image} alt={proj.title} className="project-img" loading="lazy" />
+                                        : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--bg2), var(--bg))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontSize: '3rem', opacity: 0.3 }}>⬡</div>
                                 }
-                                <div className="project-overlay">
+                                <div className="project-overlay" style={{ pointerEvents: 'none' }}>
                                     <span className="project-overlay-text">
                                         <FaArrowRight /> View Details
                                     </span>
@@ -500,7 +529,7 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                             <div className="project-body">
                                 {proj.tags && (
                                     <div className="project-tags">
-                                        {proj.tags.split(',').map((t) => (
+                                        {(typeof proj.tags === 'string' ? proj.tags.split(',') : proj.tags).map((t: string) => (
                                             <span key={t.trim()} className="project-tag">{t.trim()}</span>
                                         ))}
                                     </div>
@@ -554,7 +583,7 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                                 <div className="skills-grid">
                                     {catSkills.map((skill, i) => (
                                         <div
-                                            key={skill.id}
+                                            key={skill.id || i}
                                             className="skill-chip"
                                             style={{ animationDelay: `${i * 0.05}s` }}
                                         >
@@ -587,14 +616,14 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                 </div>
 
                 <div className="blog-grid">
-                    {data.posts.slice(0, 3).map(post => (
+                    {data.posts.slice(0, 3).map((post, idx) => (
                         <div
-                            key={post.id}
+                            key={post.id || idx}
                             className="blog-card"
-                            onClick={() => navigate(`/blog/${post.id}`)}
+                            onClick={() => post.id && navigate(`/blog/${post.id}`)}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={e => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
+                            onKeyDown={e => e.key === 'Enter' && post.id && navigate(`/blog/${post.id}`)}
                         >
                             {post.coverImage
                                 ? <img src={post.coverImage} alt={post.title} className="blog-cover" loading="lazy" />

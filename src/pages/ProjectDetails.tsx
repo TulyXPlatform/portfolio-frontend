@@ -6,7 +6,7 @@ import LoadingScreen from '../components/LoadingScreen';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
 interface Project {
-    id: number;
+    id: string | number;
     title: string;
     shortDescription: string;
     description: string;
@@ -23,12 +23,13 @@ const ProjectDetails: React.FC = () => {
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
+    const [activeImgIndex, setActiveImgIndex] = useState(0);
 
     useEffect(() => {
         axios.get(`${API_BASE}/projects/${id}`)
             .then(res => setProject(res.data))
             .catch(() => setProject({
-                id: Number(id), title: 'Project Not Found', shortDescription: '', description: '',
+                id: id || '', title: 'Project Not Found', shortDescription: '', description: '',
                 image: '', images: '', liveLink: '', githubLink: '', tags: '', createdAt: new Date().toISOString(),
             }))
             .finally(() => setLoading(false));
@@ -38,33 +39,77 @@ const ProjectDetails: React.FC = () => {
 
     if (!project) return null;
 
-    const extraImages = project.images ? project.images.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const extraImages = project.images 
+        ? (typeof project.images === 'string' ? project.images.split(',').map(s => s.trim()).filter(Boolean) : project.images)
+        : [];
     const allImages = [project.image, ...extraImages].filter(Boolean);
+
+    const handleBackToProjects = () => {
+        navigate('/#projects-section');
+    };
 
     return (
         <div style={{ paddingTop: '2rem' }}>
             {/* Back button */}
             <button
-                onClick={() => navigate(-1)}
+                onClick={handleBackToProjects}
                 className="btn-ghost"
                 style={{ marginBottom: '2rem' }}
             >
                 <FaArrowLeft /> Back to Portfolio
             </button>
 
-            {/* Hero image */}
-            {project.image && (
+            {/* Live Interactive Window or Hero Carousel */}
+            {project.liveLink && project.liveLink !== '#' ? (
                 <div style={{
-                    width: '100%', height: '400px', borderRadius: 'var(--radius)',
-                    overflow: 'hidden', marginBottom: '2rem', border: '1px solid var(--card-border)'
+                    width: '100%', height: '600px', borderRadius: 'var(--radius)',
+                    overflow: 'hidden', marginBottom: '2rem', border: '1px solid var(--card-border)',
+                    background: '#000', position: 'relative'
                 }}>
-                    <img
-                        src={project.image}
-                        alt={project.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    <div style={{
+                        position: 'absolute', top: '10px', right: '10px', zIndex: 10,
+                        background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: '20px',
+                        fontSize: '0.7rem', color: 'var(--primary)', border: '1px solid var(--primary)',
+                        pointerEvents: 'none', fontFamily: 'var(--font-mono)'
+                    }}>
+                        Interactive Live Preview
+                    </div>
+                    <object data={project.liveLink} style={{ width: '100%', height: '100%' }} aria-label={project.title} />
                 </div>
-            )}
+            ) : allImages.length > 0 ? (
+                <div style={{ marginBottom: '2rem' }}>
+                    <div style={{
+                        width: '100%', height: '500px', borderRadius: 'var(--radius)',
+                        overflow: 'hidden', border: '1px solid var(--card-border)',
+                        background: 'var(--bg2)', position: 'relative'
+                    }}>
+                        <img
+                            src={allImages[activeImgIndex]}
+                            alt={project.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        />
+                        {allImages.length > 1 && (
+                            <div style={{
+                                position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+                                display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.4)', padding: '8px',
+                                borderRadius: '20px', backdropFilter: 'blur(5px)'
+                            }}>
+                                {allImages.map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setActiveImgIndex(i)}
+                                        style={{
+                                            width: '10px', height: '10px', borderRadius: '50%', border: 'none',
+                                            background: i === activeImgIndex ? 'var(--primary)' : 'rgba(255,255,255,0.3)',
+                                            cursor: 'pointer', transition: 'all 0.3s'
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : null}
 
             {/* Content */}
             <div className="glass" style={{ padding: '2.5rem', marginBottom: '2rem' }}>
@@ -121,13 +166,25 @@ const ProjectDetails: React.FC = () => {
                 )}
             </div>
 
-            {/* Image Gallery */}
+            {/* Image Gallery (Thumbs) */}
             {allImages.length > 1 && (
                 <div style={{ marginBottom: '3rem' }}>
                     <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', marginBottom: '1.5rem', color: 'var(--primary)' }}>Gallery</h2>
                     <div className="image-gallery">
                         {allImages.map((img, i) => (
-                            <img key={i} src={img} alt={`Screenshot ${i + 1}`} className="gallery-img" loading="lazy" />
+                            <img
+                                key={i}
+                                src={img}
+                                alt={`Screenshot ${i + 1}`}
+                                className={`gallery-img ${i === activeImgIndex ? 'active-thumb' : ''}`}
+                                onClick={() => setActiveImgIndex(i)}
+                                style={{
+                                    cursor: 'pointer',
+                                    border: i === activeImgIndex ? '2px solid var(--primary)' : '1px solid var(--card-border)',
+                                    opacity: i === activeImgIndex ? 1 : 0.6
+                                }}
+                                loading="lazy"
+                            />
                         ))}
                     </div>
                 </div>
