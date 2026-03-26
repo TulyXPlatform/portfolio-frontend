@@ -8,6 +8,7 @@ import {
     FaTerminal, FaArrowDown, FaChevronDown, FaChevronUp,
     FaGlobeAsia, FaCalendarAlt, FaArrowRight
 } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 import LoadingScreen from '../components/LoadingScreen';
 
 // ─── Types ────────────────────────────────────────────────
@@ -67,18 +68,18 @@ const MOCK_DATA: PortfolioData = {
         organization: 'IsDB-BISEW IT Scholarship Programme',
         startDate: 'Jan 2025', endDate: 'Present',
         description: `1. Design and implement databases with MS SQL Server 2019 and 2022 EE
-2. Programming with C# 7 and .Net 5
-3. Programming in HTML5 with JavaScript & CSS3
-4. Introduction to XML, ADO.NET & Reporting
-5. Developing ASP.NET MVC 5 Web Applications
-6. Entity Framework 6 Code First using ASP.NET MVC 5
-7. Developing ASP.NET Core Web Applications
-8. Entity Framework Core Code First using ASP.NET Core
-9. Developing Web APIs, Windows Azure and Web Services using ASP.NET MVC 5
-10. Developing Web APIs using ASP.NET Core
-11. Advanced Web Application Development with Angular
-12. Advanced Web Application Development with Blazor Server & Web Assembly
-13. Developing Cross Platform Mobile Applications using MAUI`
+                    2. Programming with C# 7 and .Net 5
+                    3. Programming in HTML5 with JavaScript & CSS3
+                    4. Introduction to XML, ADO.NET & Reporting
+                    5. Developing ASP.NET MVC 5 Web Applications
+                    6. Entity Framework 6 Code First using ASP.NET MVC 5
+                    7. Developing ASP.NET Core Web Applications
+                    8. Entity Framework Core Code First using ASP.NET Core
+                    9. Developing Web APIs, Windows Azure and Web Services using ASP.NET MVC 5
+                    10. Developing Web APIs using ASP.NET Core
+                    11. Advanced Web Application Development with Angular
+                    12. Advanced Web Application Development with Blazor Server & Web Assembly
+                    13. Developing Cross Platform Mobile Applications using MAUI`
     }],
     cvLink: '/cv.pdf',
 };
@@ -453,29 +454,29 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                     {data.experiences.map((exp, index) => {
                         const uniqueId = exp.id || index;
                         return (
-                        <div key={uniqueId} className="timeline-item glass">
-                            <div className="timeline-dot" />
-                            <div className="timeline-dates">
-                                <FaCalendarAlt /> {exp.startDate} → {exp.endDate}
+                            <div key={uniqueId} className="timeline-item glass">
+                                <div className="timeline-dot" />
+                                <div className="timeline-dates">
+                                    <FaCalendarAlt /> {exp.startDate} → {exp.endDate}
+                                </div>
+                                <h3 className="timeline-title">{exp.title}</h3>
+                                <p className="timeline-org">
+                                    <FaGlobeAsia style={{ marginRight: '0.4rem', fontSize: '0.8rem' }} />
+                                    {exp.organization}
+                                </p>
+                                {expandedExp[uniqueId] && (
+                                    <p className="timeline-desc">{exp.description}</p>
+                                )}
+                                <button
+                                    className="timeline-expand-btn"
+                                    onClick={() => setExpandedExp(prev => ({ ...prev, [uniqueId]: !prev[uniqueId] }))}
+                                >
+                                    {expandedExp[uniqueId]
+                                        ? <><FaChevronUp style={{ marginRight: '0.3rem' }} />Hide Details</>
+                                        : <><FaChevronDown style={{ marginRight: '0.3rem' }} />View Modules</>
+                                    }
+                                </button>
                             </div>
-                            <h3 className="timeline-title">{exp.title}</h3>
-                            <p className="timeline-org">
-                                <FaGlobeAsia style={{ marginRight: '0.4rem', fontSize: '0.8rem' }} />
-                                {exp.organization}
-                            </p>
-                            {expandedExp[uniqueId] && (
-                                <p className="timeline-desc">{exp.description}</p>
-                            )}
-                            <button
-                                className="timeline-expand-btn"
-                                onClick={() => setExpandedExp(prev => ({ ...prev, [uniqueId]: !prev[uniqueId] }))}
-                            >
-                                {expandedExp[uniqueId]
-                                    ? <><FaChevronUp style={{ marginRight: '0.3rem' }} />Hide Details</>
-                                    : <><FaChevronDown style={{ marginRight: '0.3rem' }} />View Modules</>
-                                }
-                            </button>
-                        </div>
                         );
                     })}
                 </div>
@@ -503,22 +504,38 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                             tabIndex={0}
                             onKeyDown={e => e.key === 'Enter' && proj.id && navigate(`/project/${proj.id}`)}
                         >
-                            <div className="project-img-wrap">
+                            <div className="project-img-wrap" style={{ overflow: 'hidden' }}>
                                 {proj.liveLink && proj.liveLink !== '#'
-                                    ? <object 
-                                        data={proj.liveLink} 
-                                        style={{ 
-                                            width: '100%', 
-                                            height: '100%', 
+                                    ? <object
+                                        data={proj.liveLink}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
                                             pointerEvents: hoveredProj === proj.id ? 'all' : 'none',
-                                            transition: 'all 0.5s ease'
-                                        }} 
-                                        className="project-img" 
-                                        aria-label={proj.title} 
-                                      />
-                                    : proj.image
-                                        ? <img src={proj.image} alt={proj.title} className="project-img" loading="lazy" />
-                                        : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--bg2), var(--bg))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontSize: '3rem', opacity: 0.3 }}>⬡</div>
+                                            transition: 'all 0.5s ease',
+                                            borderRadius: 'var(--radius)'
+                                        }}
+                                        className="project-img"
+                                        aria-label={proj.title}
+                                    />
+                                    : (
+                                        <motion.img
+                                            src={proj.image}
+                                            alt={proj.title}
+                                            className="project-img"
+                                            loading="lazy"
+                                            whileHover={{ 
+                                                scale: 1.1,
+                                                rotate: [0, -1, 1, -1, 0],
+                                                transition: { duration: 0.5 }
+                                            }}
+                                            style={{ 
+                                                width: '100%', 
+                                                height: '100%', 
+                                                objectFit: 'cover' 
+                                            }}
+                                        />
+                                    )
                                 }
                                 <div className="project-overlay" style={{ pointerEvents: 'none' }}>
                                     <span className="project-overlay-text">

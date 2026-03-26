@@ -29,26 +29,25 @@ const HangingBulb: React.FC = () => {
   };
 
   return (
-    <div className="hanging-bulb-container">
-      {/* The Rope */}
-      <svg style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', width: '100%', height: '100%', overflow: 'visible' }}>
+    <div className="hanging-bulb-container" style={{ position: 'fixed', left: 'auto', right: '116px', top: 0, width: '18px', zIndex: 2000, pointerEvents: 'none' }}>
+      {/* The Rope SVG - parented over the floating road */}
+      <svg style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible', width: '100%', height: '100px' }}>
         <motion.line
-          x1="calc(100% - 40px)"
+          x1="9"
           y1="0"
-          x2={useTransform(springX, (val) => `calc(100% - 40px + ${val}px)`)}
-          y2={useTransform(springY, (val) => ROPE_LENGTH + val - 4)} // attach inside the connector
-          stroke="#555"
-          strokeWidth="2"
+          x2={useTransform(springX, (val) => 9 + val)}
+          y2={useTransform(springY, (val) => ROPE_LENGTH + val - 4)}
+          stroke="#777"
+          strokeWidth="3"
         />
       </svg>
 
-      {/* The Ball */}
+      {/* The Bulb - centered at the 9px mark within the 18px container */}
       <motion.div
         drag
         dragConstraints={{ top: 0, left: -6, right: 6, bottom: 15 }}
         dragElastic={0.05}
         onDragEnd={() => {
-          // Trigger theme change on short pull
           if (y.get() > 10) handlePull();
           x.set(0);
           y.set(0);
@@ -61,15 +60,15 @@ const HangingBulb: React.FC = () => {
           x: springX,
           y: springY,
           rotate,
-          position: 'fixed',
+          position: 'absolute',
           top: ROPE_LENGTH,
-          right: 40 - 9, // middle of bulb width
-          zIndex: 2000,
+          left: 0,
           cursor: 'grab',
           transformOrigin: 'top center',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center'
+          alignItems: 'center',
+          pointerEvents: 'all'
         }}
         className={`bulb-main ${theme}`}
         whileTap={{ cursor: 'grabbing' }}
