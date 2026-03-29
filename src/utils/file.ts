@@ -20,7 +20,17 @@ export const getFileUrl = (url: string | undefined): string => {
     if (isLocalIP && url.includes("/uploads/")) {
         const parts = url.split("/uploads/");
         if (parts.length > 1) {
+            // If the apiBase is still a local IP, use a relative path as a fallback
+            // but the REAL fix is to update VITE_API_URL in production.
             return `${apiBase}/uploads/${parts[1]}`;
+        }
+    }
+
+    // Auto-fix Imgur non-direct links
+    if (url.includes("imgur.com") && !url.includes("i.imgur.com")) {
+        const idMatch = url.match(/imgur\.com\/(?:a\/|gallery\/)?([a-zA-Z0-9]+)/);
+        if (idMatch && idMatch[1]) {
+            return `https://i.imgur.com/${idMatch[1]}.png`;
         }
     }
 
@@ -29,6 +39,11 @@ export const getFileUrl = (url: string | undefined): string => {
         return url
             .replace("github.com", "raw.githubusercontent.com")
             .replace("/blob/", "/");
+    }
+
+    // Enforce HTTPS for known platforms or if the app is on HTTPS
+    if (url.startsWith("http://") && !isLocalIP) {
+        return url.replace("http://", "https://");
     }
     
     return url;
