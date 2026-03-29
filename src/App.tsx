@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import ProjectDetails from './pages/ProjectDetails';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import ScrollToTop from './components/ScrollToTop';
 import { useState } from 'react';
 import './index.css';
 
@@ -14,6 +15,7 @@ function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Layout socialLinks={socialLinks}>
           <Routes>
             <Route path="/" element={<Home onSocialLinks={setSocialLinks} />} />
