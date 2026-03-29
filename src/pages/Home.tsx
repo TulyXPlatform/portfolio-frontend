@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import LoadingScreen from '../components/LoadingScreen';
-import { getFileUrl, getFileUrl as getImageUrl } from '../utils/file';
+import { getFileUrl as getImageUrl } from '../utils/file';
 
 // ─── Types ────────────────────────────────────────────────
 interface SocialLink { id: string | number; platform: string; url: string; }
