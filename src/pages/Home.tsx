@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import LoadingScreen from '../components/LoadingScreen';
+import { getFileUrl, getFileUrl as getImageUrl } from '../utils/file';
 
 // ─── Types ────────────────────────────────────────────────
 interface SocialLink { id: string | number; platform: string; url: string; }
@@ -341,9 +342,8 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                             ))}
 
                             <a
-                                href={data.cvLink || '/cv.pdf'}
+                                href={`${import.meta.env.VITE_API_URL}/api/cv/download`}
                                 className="cv-btn"
-                                download
                                 target="_blank"
                                 rel="noreferrer"
                                 style={{ marginTop: 0 }}
@@ -506,21 +506,29 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                         >
                             <div className="project-img-wrap" style={{ overflow: 'hidden' }}>
                                 {proj.liveLink && proj.liveLink !== '#'
-                                    ? <object
-                                        data={proj.liveLink}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            pointerEvents: hoveredProj === proj.id ? 'all' : 'none',
-                                            transition: 'all 0.5s ease',
-                                            borderRadius: 'var(--radius)'
-                                        }}
-                                        className="project-img"
-                                        aria-label={proj.title}
-                                    />
+                                    ? (
+                                        <object
+                                            data={proj.liveLink}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                pointerEvents: hoveredProj === proj.id ? 'all' : 'none',
+                                                transition: 'all 0.5s ease',
+                                                borderRadius: 'var(--radius)'
+                                            }}
+                                            className="project-img"
+                                            aria-label={proj.title}
+                                        >
+                                            <img 
+                                                src={getImageUrl(proj.image)} 
+                                                alt={proj.title} 
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                            />
+                                        </object>
+                                    )
                                     : (
                                         <motion.img
-                                            src={proj.image}
+                                            src={getImageUrl(proj.image)}
                                             alt={proj.title}
                                             className="project-img"
                                             loading="lazy"
@@ -606,7 +614,7 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                                         >
                                             {skill.logo && (
                                                 <img
-                                                    src={skill.logo}
+                                                    src={getImageUrl(skill.logo)}
                                                     alt={skill.name}
                                                     className="skill-logo"
                                                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -643,7 +651,7 @@ const Home: React.FC<HomeProps> = ({ onSocialLinks }) => {
                             onKeyDown={e => e.key === 'Enter' && post.id && navigate(`/blog/${post.id}`)}
                         >
                             {post.coverImage
-                                ? <img src={post.coverImage} alt={post.title} className="blog-cover" loading="lazy" />
+                                ? <img src={getImageUrl(post.coverImage)} alt={post.title} className="blog-cover" loading="lazy" />
                                 : <div className="blog-cover-placeholder">✍</div>
                             }
                             <div className="blog-body">

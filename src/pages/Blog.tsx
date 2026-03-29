@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaCalendarAlt, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { getFileUrl as getImageUrl } from '../utils/file';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
 interface Post { id: number; title: string; summary: string; coverImage: string; createdAt: string; }
@@ -54,7 +55,7 @@ const Blog: React.FC = () => {
                             onKeyDown={e => e.key === 'Enter' && navigate(`/blog/${post.id}`)}
                         >
                             {post.coverImage
-                                ? <img src={post.coverImage} alt={post.title} className="blog-cover" loading="lazy" />
+                                ? <img src={getImageUrl(post.coverImage)} alt={post.title} className="blog-cover" loading="lazy" />
                                 : <div className="blog-cover-placeholder">✍</div>
                             }
                             <div className="blog-body">

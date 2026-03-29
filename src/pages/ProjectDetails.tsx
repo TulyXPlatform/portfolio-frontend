@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoadingScreen from '../components/LoadingScreen';
+import { getFileUrl as getImageUrl } from '../utils/file';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
 interface Project {
@@ -36,7 +37,9 @@ const ProjectDetails: React.FC = () => {
     const extraImages = project?.images 
         ? (typeof project.images === 'string' ? project.images.split(',').map(s => s.trim()).filter(Boolean) : project.images)
         : [];
-    const allImages = project ? [project.image, ...extraImages].filter(Boolean) : [];
+    const allImages = project 
+        ? [project.image, ...extraImages].filter(Boolean).map(url => getImageUrl(url)) 
+        : [];
 
     const nextImage = () => {
         if (allImages.length === 0) return;
@@ -59,8 +62,11 @@ const ProjectDetails: React.FC = () => {
 
     // Handle initial view
     useEffect(() => {
-        if (project && (!project.liveLink || project.liveLink === '#')) {
-            setShowCarouselView(true);
+        if (project) {
+            const isMobile = window.innerWidth < 768;
+            if (!project.liveLink || project.liveLink === '#' || isMobile) {
+                setShowCarouselView(true);
+            }
         }
     }, [project]);
 
@@ -100,7 +106,7 @@ const ProjectDetails: React.FC = () => {
 
             {/* Interaction Mode Toggle */}
             {project.liveLink && project.liveLink !== '#' && (
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                     <button 
                         onClick={() => setShowCarouselView(false)}
                         className={`btn-ghost ${!showCarouselView ? 'active-tab-btn' : ''}`}
@@ -124,7 +130,11 @@ const ProjectDetails: React.FC = () => {
                         <FaImage /> Screen Shots
                     </button>
                     {!showCarouselView && (
-                        <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ 
+                            fontSize: '0.7rem', color: 'var(--text-muted)', 
+                            display: 'flex', alignItems: 'center', 
+                            flexBasis: '100%', marginTop: '0.5rem'
+                        }}>
                             Interactive window not loading? &nbsp;
                             <span 
                                 onClick={() => setShowCarouselView(true)} 
@@ -306,7 +316,7 @@ const ProjectDetails: React.FC = () => {
                                     border: i === activeImgIndex ? '2px solid var(--primary)' : '1px solid var(--card-border)',
                                     opacity: i === activeImgIndex ? 1 : 0.6,
                                     width: '100%',
-                                    height: 'auto',
+                                    height: '140px',
                                     borderRadius: '8px',
                                     objectFit: 'cover'
                                 }}

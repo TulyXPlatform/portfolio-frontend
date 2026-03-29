@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaArrowLeft, FaCalendarAlt } from 'react-icons/fa';
 import LoadingScreen from '../components/LoadingScreen';
+import { getFileUrl as getImageUrl } from '../utils/file';
 
 const API_BASE = import.meta.env.VITE_API_URL + '/api';
 interface Post { id: string | number; title: string; summary: string; content: string; coverImage: string; createdAt: string; }
@@ -40,10 +41,11 @@ const BlogPost: React.FC = () => {
             {/* Cover image */}
             {post.coverImage && (
                 <div style={{
-                    width: '100%', height: '400px', borderRadius: 'var(--radius)',
-                    overflow: 'hidden', marginBottom: '2.5rem', border: '1px solid var(--card-border)'
+                    width: '100%', borderRadius: 'var(--radius)',
+                    overflow: 'hidden', marginBottom: '2.5rem', border: '1px solid var(--card-border)',
+                    background: 'var(--bg2)'
                 }}>
-                    <img src={post.coverImage} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={getImageUrl(post.coverImage)} alt={post.title} style={{ width: '100%', height: 'auto', display: 'block', maxHeight: '600px', objectFit: 'contain' }} />
                 </div>
             )}
 
