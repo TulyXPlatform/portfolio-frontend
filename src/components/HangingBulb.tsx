@@ -29,7 +29,7 @@ const HangingBulb: React.FC = () => {
   };
 
   return (
-    <div className="hanging-bulb-container" style={{ position: 'fixed', left: 'auto', right: '116px', top: 0, width: '18px', zIndex: 2000, pointerEvents: 'none' }}>
+    <div className="hanging-bulb-container">
       {/* The Rope SVG - parented over the floating road */}
       <svg style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible', width: '100%', height: '100px' }}>
         <motion.line
